@@ -13,7 +13,7 @@ wifi:
 
 # Enable logging with touchscreen debug info
 logger:
-  level: INFO
+  level: DEBUG
   logs:
     cst3240.touchscreen: DEBUG
 
@@ -22,6 +22,7 @@ api:
 
 # Enable OTA updates
 ota:
+  - platform: esphome
 
 # External component configuration
 external_components:
@@ -59,14 +60,15 @@ display:
 touchscreen:
   - platform: cst3240
     id: my_touchscreen
+    display: my_display
     interrupt_pin: GPIO15
     reset_pin: GPIO16
+    calibration:
+      x_min: 0
+      x_max: 320
+      y_min: 0
+      y_max: 240
     transform:
-      calibration:
-        x_min: 0
-        x_max: 320
-        y_min: 0
-        y_max: 240
       swap_xy: false
       mirror_x: false
       mirror_y: false

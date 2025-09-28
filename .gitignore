@@ -1,1 +1,9 @@
 __pycache__
+
+# ESPHome build artifacts and temporary files
+.esphome/
+*.log
+build/
+
+# Temporary test files
+test-external.yaml
