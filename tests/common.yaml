@@ -26,6 +26,7 @@ display:
 touchscreen:
   - id: ts_cst3240
     platform: cst3240
+    display: my_display
     interrupt_pin: ${interrupt_pin}
     reset_pin: ${reset_pin}
     transform:
