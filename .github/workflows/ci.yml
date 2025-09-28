@@ -1,0 +1,159 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test CST3240 Component
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-config:
+          - test.esp32-ard.yaml
+          - test.esp32-idf.yaml
+          - test.esp32-c3-ard.yaml
+          - test.esp32-c3-idf.yaml
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install ESPHome
+        run: |
+          pip install esphome
+
+      - name: Validate configuration
+        run: |
+          esphome config tests/${{ matrix.test-config }}
+
+      - name: Compile firmware
+        run: |
+          esphome compile tests/${{ matrix.test-config }}
+
+  validate-examples:
+    name: Validate Example Configurations
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example:
+          - touchscreen.yaml
+          - virtual-buttons.yaml
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install ESPHome
+        run: |
+          pip install esphome
+
+      - name: Update example to use local component
+        run: |
+          # Replace GitHub source with local path for testing
+          sed -i 's|source: github://shyndman/esphome-cst3240|source: ../components|g' examples/${{ matrix.example }}
+
+      - name: Validate example configuration
+        run: |
+          esphome config examples/${{ matrix.example }}
+
+  check-formatting:
+    name: Check Code Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install formatting tools
+        run: |
+          pip install ruff
+
+      - name: Check Python formatting
+        run: |
+          ruff check
+
+      - name: Check C++ formatting (if clang-format is available)
+        run: |
+          find components/ -name "*.cpp" -o -name "*.h" | xargs clang-format --dry-run --Werror
+
+
+  test-external-component:
+    name: Test as External Component
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install ESPHome
+        run: |
+          pip install esphome
+
+      - name: Create test configuration
+        run: |
+          cat > test-external.yaml << EOF
+          esphome:
+            name: test-external
+
+          esp32:
+            variant: esp32
+            flash_size: 16MB
+            cpu_frequency: 240MHZ
+            framework:
+              type: esp-idf
+
+          external_components:
+            - source:
+                type: local
+                path: ./components
+              components: [cst3240]
+
+          wifi:
+            ssid: "test"
+            password: "YourWiFiPassword"
+
+          logger:
+          api:
+
+          i2c:
+            sda: GPIO21
+            scl: GPIO22
+
+          touchscreen:
+            - platform: cst3240
+              id: test_touchscreen
+              interrupt_pin: GPIO15
+              reset_pin: GPIO16
+          EOF
+
+      - name: Test external component loading
+        run: |
+          esphome config test-external.yaml
+
+      - name: Compile external component test
+        run: |
+          esphome compile test-external.yaml

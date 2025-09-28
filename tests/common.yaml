@@ -1,0 +1,46 @@
+i2c:
+  - id: i2c_cst3240
+    scl: ${scl_pin}
+    sda: ${sda_pin}
+
+spi:
+  - id: spi_ili9xxx
+    clk_pin: ${clk_pin}
+    mosi_pin: ${mosi_pin}
+
+display:
+  - id: my_display
+    platform: ili9xxx
+    dimensions: 320x240
+    model: ILI9341
+    cs_pin: ${cs_pin}
+    dc_pin: ${dc_pin}
+    reset_pin: ${disp_reset_pin}
+    transform:
+      swap_xy: false
+      mirror_x: false
+      mirror_y: false
+    auto_clear_enabled: false
+    invert_colors: false
+
+touchscreen:
+  - id: ts_cst3240
+    platform: cst3240
+    interrupt_pin: ${interrupt_pin}
+    reset_pin: ${reset_pin}
+    transform:
+      mirror_x: false
+      mirror_y: false
+      swap_xy: false
+
+binary_sensor:
+  - platform: touchscreen
+    name: Home Button
+    touchscreen_id: ts_cst3240
+    x_min: 0
+    x_max: 240
+    y_min: 400
+    y_max: 480
+  - platform: cst3240
+    cst3240_id: ts_cst3240
+    name: CST3240 Virtual Button

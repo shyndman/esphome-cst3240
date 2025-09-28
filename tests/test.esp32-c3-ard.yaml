@@ -1,0 +1,34 @@
+esphome:
+  name: cst3240-test-esp32-c3-ard
+
+esp32:
+  board: esp32-c3-devkitm-1
+  variant: ESP32C3
+  framework:
+    type: arduino
+
+wifi:
+  ssid: "test"
+  password: "testpass"
+
+logger:
+api:
+ota:
+  - platform: esphome
+
+external_components:
+  - source: ../components
+    components: [cst3240]
+
+substitutions:
+  clk_pin: GPIO0
+  mosi_pin: GPIO1
+  cs_pin: GPIO2
+  dc_pin: GPIO3
+  disp_reset_pin: GPIO4
+  scl_pin: GPIO5
+  sda_pin: GPIO6
+  interrupt_pin: GPIO7
+  reset_pin: GPIO8
+
+<<: !include common.yaml
