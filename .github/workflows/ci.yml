@@ -143,9 +143,23 @@ jobs:
             sda: GPIO21
             scl: GPIO22
 
+          spi:
+            clk_pin: GPIO18
+            mosi_pin: GPIO23
+
+          display:
+            - platform: ili9xxx
+              id: test_display
+              model: ILI9341
+              cs_pin: GPIO5
+              dc_pin: GPIO2
+              reset_pin: GPIO4
+              invert_colors: false
+
           touchscreen:
             - platform: cst3240
               id: test_touchscreen
+              display: test_display
               interrupt_pin: GPIO15
               reset_pin: GPIO16
           EOF
